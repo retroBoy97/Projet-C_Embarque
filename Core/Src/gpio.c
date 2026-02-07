@@ -9,7 +9,7 @@ unsigned int * RCC_AHB1_ENR= (unsigned int *)(RCC_AHB1 + RCC_AHB1_ENR_OFFSET);
 #define RCC_AHB1_RSTR_OFFSET 0x10
 unsigned int* RCC_AHB1RSTR = (unsigned int *)(RCC_AHB1 + RCC_AHB1_RSTR_OFFSET);
 
-void GPIO_ClockEnable (unsigned int * gpio_x){
+void GPIO_ClockEnable (unsigned int* gpio_x){
 
     if (gpio_x == GPIO_A){
         *RCC_AHB1_ENR |= (1 << 0);
@@ -103,12 +103,6 @@ void GPIO_Init(unsigned int * gpio_x, char Mode, char typeOutput, short int pin)
 	* @param  typeOutput: can be PP or OD
 	* @param  pin: can be 0...15
 	* @retval None
-	*/
-	/*
-	(unsigned int*) GPIO_MODER = (unsigned int*) (gpio_x + MODER);
-	(unsigned int*) GPIO_IDR = (unsigned int*) (gpio_x + IDR);
-	(unsigned int*) GPIO_ODR = (unsigned int*) (gpio_x + ODR);
-	(unsigned int*) GPIO_OTYPER = (unsigned int*) (gpio_x + OTYPER);
 	*/
 
 	unsigned int* moder = (unsigned int*)(gpio_x + (MODER / 4));
