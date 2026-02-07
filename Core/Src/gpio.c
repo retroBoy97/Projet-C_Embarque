@@ -1,0 +1,210 @@
+#include "gpio.h"
+
+#define RCC_AHB1 0x40023800
+// RCC_AHB1_ENR
+#define RCC_AHB1_ENR_OFFSET 0x30
+unsigned int * RCC_AHB1_ENR= (unsigned int *)(RCC_AHB1 + RCC_AHB1_ENR_OFFSET);
+
+// RCC_AHB1RSTR
+#define RCC_AHB1_RSTR_OFFSET 0x10
+unsigned int* RCC_AHB1RSTR = (unsigned int *)(RCC_AHB1 + RCC_AHB1_RSTR_OFFSET);
+
+void GPIO_ClockEnable (unsigned int * gpio_x){
+
+    if (gpio_x == GPIO_A){
+        *RCC_AHB1_ENR |= (1 << 0);
+    }
+    else if (gpio_x == GPIO_B){
+        *RCC_AHB1_ENR |= (1 << 1);
+    }
+    else if (gpio_x == GPIO_C){
+            *RCC_AHB1_ENR |= (1 << 2);
+        }
+    else if (gpio_x == GPIO_C){
+            *RCC_AHB1_ENR |= (1 << 2);
+        }
+    else if (gpio_x == GPIO_D){
+            *RCC_AHB1_ENR |= (1 << 3);
+        }
+    else if (gpio_x == GPIO_E){
+            *RCC_AHB1_ENR |= (1 << 4);
+        }
+    else if (gpio_x == GPIO_F){
+            *RCC_AHB1_ENR |= (1 << 5);
+        }
+    else if (gpio_x == GPIO_G){
+            *RCC_AHB1_ENR |= (1 << 6);
+        }
+    else if (gpio_x == GPIO_H){
+            *RCC_AHB1_ENR |= (1 << 7);
+        }
+    else if (gpio_x == GPIO_I){
+            *RCC_AHB1_ENR |= (1 << 8);
+        }
+    else if (gpio_x == GPIO_J){
+            *RCC_AHB1_ENR |= (1 << 9);
+        }
+    else if (gpio_x == GPIO_K){
+            *RCC_AHB1_ENR |= (1 << 10);
+        }
+}
+
+
+void GPIO_DeInit(unsigned int * gpio_x){
+	/**
+	* @brief  Deinitializes the gpio_x peripheral registers to their default reset values.
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @retval None
+	*/
+		if (gpio_x == GPIO_A){
+	        *RCC_AHB1RSTR |= (1 << 0);
+	    }
+	    else if (gpio_x == GPIO_B){
+	        *RCC_AHB1RSTR |= (1 << 1);
+	    }
+	    else if (gpio_x == GPIO_C){
+	    	*RCC_AHB1RSTR |= (1 << 2);
+	    }
+	    else if (gpio_x == GPIO_C){
+	    	*RCC_AHB1RSTR |= (1 << 2);
+	    }
+	    else if (gpio_x == GPIO_D){
+	    	*RCC_AHB1RSTR |= (1 << 3);
+	    }
+	    else if (gpio_x == GPIO_E){
+	    	*RCC_AHB1RSTR |= (1 << 4);
+	    }
+	    else if (gpio_x == GPIO_F){
+	    	*RCC_AHB1RSTR |= (1 << 5);
+	    }
+	    else if (gpio_x == GPIO_G){
+	    	*RCC_AHB1RSTR |= (1 << 6);
+	    }
+	    else if (gpio_x == GPIO_H){
+	    	*RCC_AHB1RSTR |= (1 << 7);
+	    }
+	    else if (gpio_x == GPIO_I){
+	    	*RCC_AHB1RSTR |= (1 << 8);
+	    }
+	    else if (gpio_x == GPIO_J){
+	    	*RCC_AHB1RSTR |= (1 << 9);
+	    }
+	    else if (gpio_x == GPIO_K){
+	    	*RCC_AHB1RSTR |= (1 << 10);
+	    }
+}
+
+
+void GPIO_Init(unsigned int * gpio_x, char Mode, char typeOutput, short int pin){
+	/**
+	* @brief  Configure the gpio_x
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @param  Mode: can be INPUT, OUTPUT, AF or AN
+	* @param  typeOutput: can be PP or OD
+	* @param  pin: can be 0...15
+	* @retval None
+	*/
+	/*
+	(unsigned int*) GPIO_MODER = (unsigned int*) (gpio_x + MODER);
+	(unsigned int*) GPIO_IDR = (unsigned int*) (gpio_x + IDR);
+	(unsigned int*) GPIO_ODR = (unsigned int*) (gpio_x + ODR);
+	(unsigned int*) GPIO_OTYPER = (unsigned int*) (gpio_x + OTYPER);
+	*/
+
+	unsigned int* moder = (unsigned int*)(gpio_x + (MODER / 4));
+	unsigned int* otyper = (unsigned int*)(gpio_x + (OTYPER / 4));
+
+	if (Mode == MODE_OUTPUT){
+		*moder |= (1 << 2 *pin);
+		*moder &= ~(1 << (2 * pin + 1));
+
+		if (typeOutput == MODE_PUSH_PULL){
+			*otyper &= ~(1 << pin);
+		}
+		else if (typeOutput == MODE_OPEN_DRAIN){
+			*otyper |= (1 << pin );
+		}
+	}
+
+	else if (Mode == MODE_INPUT){
+		*moder &= ~ (1 << (2 * pin));
+		*moder &= ~(1 << (2 * pin + 1));
+	}
+
+	else if (Mode == MODE_ALTERNATE_FUNCTION){
+		*moder &= ~ (1 << pin);
+		*moder |= (1 << (pin + 1));
+	}
+
+	else if (Mode == MODE_ANALOG){
+		*moder |=  (1 << pin);
+		*moder |= (1 << (pin + 1));
+	}
+}
+
+unsigned char GPIO_ReadInputDataBit(unsigned int*  gpio_x, unsigned short int GPIO_Pin){
+	/**
+	* @brief  Reads the specified input port pin.
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @param  GPIO_Pin: specifies the port bit to read.
+	*   This parameter can be GPIO_Pin_x where x can be (0..15).
+	* @retval The input port pin value.
+	*/
+	unsigned int * idr=(unsigned int*)(gpio_x + (IDR / 4));
+
+	if ((*idr & (1 << GPIO_Pin)) != 0){
+		return 1;
+	}
+
+	else{
+		return 0;
+	}
+}
+
+unsigned short int GPIO_ReadInputData(unsigned int *  gpio_x){
+	/**
+	* @brief  Reads the specified GPIO input data port.
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @retval GPIO input data port value.
+	*/
+	return (unsigned short int) *(gpio_x + (IDR / 4));
+}
+
+void GPIO_WriteBit(unsigned int * gpio_x, unsigned  short int GPIO_Pin, char BitVal){
+	/**
+	* @brief  Sets or clears the selected data port bit.
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @param  GPIO_Pin: specifies the port bit to be written.
+	*   This parameter can be one of GPIO_Pin_x where x can be (0..15).
+	* @param  BitVal: specifies the value to be written to the selected bit.
+	*   This parameter can be one of the BitAction enum values:
+	*     @arg Bit_RESET: to clear the port pin
+	*     @arg Bit_SET: to set the port pin
+	* @retval None
+	*/
+	unsigned int* odr = (unsigned int*)(gpio_x + (ODR / 4));
+	if (BitVal == BIT_RESET){
+		*odr &= ~(1 << GPIO_Pin);
+	}
+	else{
+		*odr |= (1 << GPIO_Pin);
+	}
+}
+
+void GPIO_Write(unsigned int * gpio_x, unsigned short int PortVal){
+	/**
+	* @brief  Writes data to the specified GPIO data port.
+	* @param  gpio_x: where x can be (A..G) to select the GPIO peripheral.
+	* @param  PortVal: specifies the value to be written to the port output data register.
+	* @retval None
+	*/
+	unsigned int * odr=(unsigned int*)(gpio_x + (ODR / 4));
+	*odr=(unsigned int)PortVal;
+}
+
+
+
+
+
+
+
